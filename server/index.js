@@ -9,13 +9,15 @@ import  Path  from 'path'
 import { fileURLToPath } from 'url'
 import path from 'path'
 import helmet from 'helmet'
+import {register} from "./controllers/auth.js"
+import {authRoutes} from "./routes/auth.js"
 
 
 // CONFIGURATIONS
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-mongoose.set('strictQuery', false)
+
 dotenv.config()
 const app = express()
 app.use(express.json())
@@ -41,10 +43,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage})
 
+// ROUTES WITH FILES
+app.post("/auth/register" , upload.single("picture") ,  register)
+
+//ROUTES 
+
+app.use("/auth" , authRoutes);
+
 // MONGOOSE SETUP
 
 const PORT = process.env.PORT || 6001
-
+mongoose.set('strictQuery', true);
 mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser : true,
     useUnifiedTopology : true,
@@ -52,3 +61,5 @@ mongoose.connect(process.env.MONGO_URL, {
     app.listen(PORT ,() => console.log(`Server Port: ${PORT}`))
 })
 .catch((error) => console.log(`${error} did not connect`))
+
+
